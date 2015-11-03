@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Help Me</title>
+</head>
+<body>
+    <textarea id="hello"></textarea>
+    <script>
+        if (('webkitSpeechRecognition' in window)) {
+            var final_transcript;
+            var interim_script;
+            var typing = false;
+            var speechRec = new webkitSpeechRecognition();
+            speechRec.onerror = function (event) {
+
+            };
+            speechRec.onend = function (event) {
+                console.log("End: ", final_transcript);
+                speechRec.stop();
+                speechRec.start();
+            }
+            speechRec.onresult = function (event) {
+                if (typeof (event.results) == 'undefined') {
+                    speechRec.onend = null;
+                    speechRec.stop();
+                    return;
+                }
+
+                for (var i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        final_transcript = event.results[i][0].transcript;
+                    } else {
+                        interim_transcript += event.results[i][0].transcript;
+                    }
+                }
+                if (typing) {
+                    doMagic("hello", final_transcript);
+                }
+                if (final_transcript.indexOf("help") > -1 || final_transcript.indexOf("ok") > -1 || final_transcript.indexOf("bits") > -1) {
+                    //start typing to the textbox
+                    if (!typing) {
+                        typing = true;
+                        alert("Wow! You enabled the help, please tell us your issue");
+                        doMagic("hello", "My issue is: ");
+                    }
+                }
+            };
+            speechRec.start();
+            function doMagic(id, text) {
+                var tb = document.getElementById(id);
+                tb.value += text;
+            };
+        }
+        else {
+            //Well, let's not talk about it.            
+        }
+    </script>
+</body>
+</html>
